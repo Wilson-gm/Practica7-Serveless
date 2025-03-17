@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://gy4mbvgbdk.execute-api.us-east-1.amazonaws.com/"; // 🚨 Verifica la URL
+const API_URL = "https://urps9eub47.execute-api.us-east-1.amazonaws.com/"; // 🚨 Verifica la URL
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
