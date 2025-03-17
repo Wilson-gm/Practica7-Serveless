@@ -1,10 +1,11 @@
 const Footer = () => {
-    return (
-      <footer className="bg-gray-200 text-center p-4 mt-8 shadow-inner">
-        <p>© 2025 Universidad PUCM - Todos los derechos reservados</p>
-      </footer>
-    );
-  };
-  
-  export default Footer;
-  
+  return (
+    <footer className="bg-gray-900 text-white text-center p-4 mt-auto shadow-inner w-full fixed bottom-0">
+      <p className="text-sm">
+        © {new Date().getFullYear()} Universidad PUCMM - Todos los derechos reservados.
+      </p>
+    </footer>
+  );
+};
+
+export default Footer;
