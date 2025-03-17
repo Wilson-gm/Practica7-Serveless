@@ -8,11 +8,8 @@ import Footer from "./components/Footer";
 const App = () => {
   return (
     <Router>
-      {/* Contenedor Principal con estructura flexible */}
       <div className="flex flex-col min-h-screen">
         <Header />
-
-        {/* Main ocupa TODO el espacio restante */}
         <main className="flex-grow flex items-center justify-center p-6 bg-gray-100">
           <div className="w-full max-w-4xl">
             <Routes>
@@ -23,8 +20,6 @@ const App = () => {
             </Routes>
           </div>
         </main>
-
-        {/* Footer SIEMPRE abajo */}
         <Footer />
       </div>
     </Router>

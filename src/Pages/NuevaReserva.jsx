@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { crearReserva, obtenerReservas } from "../services/api";
+import { crearReserva, obtenerReservas } from "../services/api"; // ✅ Importamos obtenerReservas
+import { useNavigate } from "react-router-dom";
 
 const NuevaReserva = ({ actualizarReservas }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     matricula: "",
     nombre: "",
@@ -17,7 +19,7 @@ const NuevaReserva = ({ actualizarReservas }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const validarFormulario = () => {
+  const validarFormulario = async () => {
     if (!formData.matricula || !formData.nombre || !formData.correo || !formData.laboratorio || !formData.fecha || !formData.hora) {
       setMensaje({ texto: "⚠️ Todos los campos son obligatorios.", tipo: "error" });
       return false;
@@ -33,9 +35,32 @@ const NuevaReserva = ({ actualizarReservas }) => {
       return false;
     }
 
-    const fechaReserva = new Date(formData.fecha);
-    if (fechaReserva < new Date()) {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fechaSeleccionada = new Date(`${formData.fecha}T00:00:00`);
+    fechaSeleccionada.setHours(0, 0, 0, 0);
+
+    if (fechaSeleccionada < hoy) {
       setMensaje({ texto: "⚠️ No puedes seleccionar una fecha pasada.", tipo: "error" });
+      return false;
+    }
+
+    // 🔍 VALIDACIÓN: NO MÁS DE 7 RESERVAS EN EL MISMO LABORATORIO Y HORA
+    try {
+      const todasLasReservas = await obtenerReservas();
+      const reservasMismaHora = todasLasReservas.filter(
+        (reserva) => 
+          reserva.laboratorio === formData.laboratorio &&
+          reserva.fecha === formData.fecha &&
+          reserva.hora === formData.hora
+      );
+
+      if (reservasMismaHora.length >= 7) {
+        setMensaje({ texto: "⚠️ No se pueden hacer más de 7 reservas en el mismo laboratorio y hora.", tipo: "error" });
+        return false;
+      }
+    } catch (error) {
+      setMensaje({ texto: "⚠️ Error al validar reservas. Inténtalo de nuevo.", tipo: "error" });
       return false;
     }
 
@@ -46,23 +71,25 @@ const NuevaReserva = ({ actualizarReservas }) => {
     e.preventDefault();
     setMensaje({ texto: "", tipo: "" });
 
-    if (!validarFormulario()) return;
-
-    const todasLasReservas = await obtenerReservas();
-    const reservasMismoLab = todasLasReservas.filter(
-      (r) => r.laboratorio === formData.laboratorio && r.hora === formData.hora
-    );
-
-    if (reservasMismoLab.length >= 7) {
-      setMensaje({ texto: "⚠️ No hay disponibilidad en este horario.", tipo: "error" });
-      return;
-    }
+    if (!(await validarFormulario())) return;
 
     try {
-      await crearReserva(formData);
-      actualizarReservas();
-      setMensaje({ texto: "✅ Reserva creada con éxito.", tipo: "exito" });
-      setFormData({ matricula: "", nombre: "", correo: "", laboratorio: "", fecha: "", hora: "" });
+      const nuevaReserva = await crearReserva(formData);
+
+      if (nuevaReserva) {
+        setMensaje({ texto: "✅ Reserva creada con éxito.", tipo: "exito" });
+
+        setTimeout(() => {
+          if (typeof actualizarReservas === "function") {
+            console.log("✅ Ejecutando actualizarReservas()");
+            actualizarReservas();
+          } else {
+            console.error("❌ actualizarReservas no es una función");
+          }
+
+          navigate("/reservas-activas");
+        }, 1000);
+      }
     } catch (error) {
       setMensaje({ texto: "⚠️ No se pudo registrar la reserva. Inténtalo de nuevo.", tipo: "error" });
     }
@@ -88,7 +115,6 @@ const NuevaReserva = ({ actualizarReservas }) => {
 
         <input type="date" name="fecha" value={formData.fecha} required className="border p-2 w-full mb-2" onChange={handleChange} />
 
-        {/* Selector de Hora (de 08:00 AM a 10:00 PM en múltiplos de hora) */}
         <select name="hora" value={formData.hora} required className="border p-2 w-full mb-2" onChange={handleChange}>
           <option value="">Selecciona una hora</option>
           {[...Array(15)].map((_, i) => {
@@ -101,7 +127,6 @@ const NuevaReserva = ({ actualizarReservas }) => {
           })}
         </select>
 
-        {/* Mensajes de error o éxito */}
         {mensaje.texto && (
           <p className={`text-center mb-2 ${mensaje.tipo === "error" ? "text-red-500" : "text-green-500"}`}>
             {mensaje.texto}

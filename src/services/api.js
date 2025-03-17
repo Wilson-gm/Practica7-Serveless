@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://g41qgto6o9.execute-api.us-east-1.amazonaws.com"; // 🚨 Verifica la URL
+const API_URL = "https://gy4mbvgbdk.execute-api.us-east-1.amazonaws.com/"; // 🚨 Verifica la URL
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -24,9 +24,12 @@ export const obtenerReservas = async () => {
 export const crearReserva = async (reserva) => {
   try {
     const res = await axiosInstance.post("/reservas", reserva);
+    
+    console.log("📌 Respuesta completa:", res);
+
     return res.data;
   } catch (error) {
-    console.error("Error al crear la reserva:", error);
+    console.error("❌ Error en crearReserva:", error);
     throw error;
   }
 };

@@ -1,13 +1,12 @@
 import React from "react";
+import { TrashIcon } from "@heroicons/react/24/solid";
 
-const ReservaItem = ({ reserva, eliminarReserva, actualizarReservas }) => {
+const ReservaItem = ({ reserva, eliminarReserva }) => {
   const handleEliminar = async () => {
-    const confirmar = window.confirm(`¿Estás seguro de que quieres eliminar la reserva de ${reserva.nombre}?`);
-    if (!confirmar) return;
+    if (!window.confirm(`¿Eliminar la reserva de ${reserva.nombre}?`)) return;
 
     try {
       await eliminarReserva(reserva.id);
-      actualizarReservas();
     } catch (error) {
       alert("⚠️ No se pudo eliminar la reserva. Inténtalo de nuevo.");
     }
@@ -15,19 +14,18 @@ const ReservaItem = ({ reserva, eliminarReserva, actualizarReservas }) => {
 
   return (
     <tr className="hover:bg-gray-100 transition duration-300">
-      <td className="border border-gray-300 p-3 text-center font-semibold">{reserva.id}</td>
-      <td className="border border-gray-300 p-3 text-center">{reserva.nombre}</td>
-      <td className="border border-gray-300 p-3 text-center">{reserva.correo}</td>
-      <td className="border border-gray-300 p-3 text-center">{reserva.laboratorio}</td>
-      <td className="border border-gray-300 p-3 text-center">
-        📅 {new Date(reserva.fecha).toLocaleDateString()} 🕒 {reserva.hora}
+      <td className="border p-3 text-center font-semibold">{reserva.nombre}</td>
+      <td className="border p-3 text-center">{reserva.correo}</td>
+      <td className="border p-3 text-center">{reserva.laboratorio}</td>
+      <td className="border p-3 text-center">
+        📅 {reserva.fecha} 🕒 {reserva.hora}
       </td>
-      <td className="border border-gray-300 p-3 text-center">
+      <td className="border p-3 text-center">
         <button
           onClick={handleEliminar}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-300"
+          className="bg-red-500 text-white p-2 rounded-full hover:bg-red-700 transition"
         >
-          🗑️ Eliminar
+          <TrashIcon className="h-5 w-5" />
         </button>
       </td>
     </tr>
